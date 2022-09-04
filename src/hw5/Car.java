@@ -2,6 +2,7 @@ package hw5;
 
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.function.Consumer;
 
 public class Car implements Runnable {
     private static int CARS_COUNT;
@@ -12,7 +13,7 @@ public class Car implements Runnable {
 
     private final CyclicBarrier startWait;
     private final CyclicBarrier Finish;
-
+    private final Consumer<Car> finishWin;
 
 
 
@@ -28,13 +29,14 @@ public class Car implements Runnable {
         return speed;
     }
 
-    public Car(Race race, int speed, CyclicBarrier startWait, CyclicBarrier Finish) {
+    public Car(Race race, int speed, CyclicBarrier startWait, CyclicBarrier Finish, Consumer<Car> finishWin) {
         this.race = race;
         this.speed = speed;
         CARS_COUNT++;
         this.name = "Участник #" + CARS_COUNT;
         this.startWait=startWait;
         this.Finish = Finish;
+        this.finishWin =finishWin;
 
 
     }
@@ -54,6 +56,7 @@ public class Car implements Runnable {
         for (int i = 0; i < race.getStages().size(); i++) {
             race.getStages().get(i).go(this);
         }
+        finishWin.accept(this);
 
 
         try {
@@ -62,6 +65,7 @@ public class Car implements Runnable {
         } catch (InterruptedException | BrokenBarrierException e) {
             throw new RuntimeException(e);
         }
+
 
 
     }
